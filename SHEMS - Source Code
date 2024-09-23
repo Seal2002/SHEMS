@@ -1,0 +1,218 @@
+% Define parameters
+num_states = 6; % Total number of states (3 states in your case)
+num_actions = 3; % Total number of actions (e.g., Transfer, Fill Valley,
+Stay Idle)
+time_steps = 24; % Time steps (e.g., 24-hour period)
+% Initialize Q-table
+Q = rand(num_states, num_actions); % Placeholder Q matrix for demonstration
+% Note: You should use a trained Q matrix instead of random values
+% Define rewards matrix (ensure it has num_states rows and num_actions
+columns)
+rewards = rand(num_states, num_actions); % Use appropriate values instead of
+random for demonstration
+% Define hyperparameters for Q-learning
+alpha = 0.1; % Learning rate
+gamma = 0.9; % Discount factor
+epsilon = 0.1; % Exploration rate
+% Number of episodes for training
+num_episodes = 1000;
+function [next_state, reward] = execute_action(current_state, action)
+% Define the next state and reward based on the current state and chosen
+action
+switch current_state
+case 1 % State 1
+if action == 1 % Transfer
+next_state = 2; % Transition to State 2
+reward = -1; % Example reward for Transfer action in State 1
+elseif action == 2 % Fill Valley
+next_state = 3; % Transition to State 3
+reward = 2; % Example reward for Fill Valley action in State
+1
+elseif action == 3 % Stay Idle
+next_state = current_state; % Stay in State 1
+reward = 0; % Example reward for Stay Idle action in State 1
+end
+case 2 % State 2
+if action == 1 % Transfer
+next_state = 4; % Transition to State 4
+reward = 1; % Example reward for Transfer action in State 2
+elseif action == 2 % Fill Valley
+next_state = 5; % Transition to State 5
+reward = -1; % Example reward for Fill Valley action in
+State 2
+elseif action == 3 % Stay Idle
+next_state = current_state; % Stay in State 2
+reward = 0; % Example reward for Stay Idle action in State 2
+33
+end
+case 3 % State 3
+if action == 1 % Transfer
+next_state = 6; % Transition to State 6
+reward = -1; % Example reward for Transfer action in State 3
+elseif action == 2 % Fill Valley
+next_state = 1; % Transition to State 1
+reward = 1; % Example reward for Fill Valley action in State
+3
+elseif action == 3 % Stay Idle
+next_state = current_state; % Stay in State 3
+reward = 0; % Example reward for Stay Idle action in State 3
+end
+case 4 % State 4
+if action == 1 % Transfer
+next_state = 5; % Transition to State 5
+reward = 0; % Example reward for Transfer action in State 4
+elseif action == 2 % Fill Valley
+next_state = 6; % Transition to State 6
+reward = 1; % Example reward for Fill Valley action in State
+4
+elseif action == 3 % Stay Idle
+next_state = current_state; % Stay in State 4
+reward = 0; % Example reward for Stay Idle action in State 4
+end
+case 5 % State 5
+if action == 1 % Transfer
+next_state = 6; % Transition to State 6
+reward = -1; % Example reward for Transfer action in State 5
+elseif action == 2 % Fill Valley
+next_state = 1; % Transition to State 1
+reward = 2; % Example reward for Fill Valley action in State
+5
+elseif action == 3 % Stay Idle
+next_state = current_state; % Stay in State 5
+reward = 0; % Example reward for Stay Idle action in State 5
+end
+case 6 % State 6
+if action == 1 % Transfer
+next_state = 1; % Transition to State 1
+reward = 0; % Example reward for Transfer action in State 6
+elseif action == 2 % Fill Valley
+next_state = 2; % Transition to State 2
+reward = 1; % Example reward for Fill Valley action in State
+6
+elseif action == 3 % Stay Idle
+next_state = current_state; % Stay in State 6
+reward = 0; % Example reward for Stay Idle action in State 6
+end
+34
+end
+end
+% Q-learning process
+for episode = 1:num_episodes
+% Choose a random initial state for each episode
+state = randi(num_states);
+% Simulate a 24-hour period (or adjust as needed)
+for hour = 1:time_steps
+% Choose action based on epsilon-greedy strategy
+if rand < epsilon
+% Explore: Choose a random action
+action = randi(num_actions);
+else
+% Exploit: Choose the action with the highest Q-value for the
+current state
+[~, action] = max(Q(state, :));
+end
+% Execute the selected action and observe the next state and reward
+[next_state, reward] = execute_action(state, action);
+% Determine the maximum Q-value for the next state
+max_Q_next = max(Q(next_state, :));
+% Update the Q-value for the current state and action using the
+Q-learning update rule
+Q(state, action) = Q(state, action) + alpha * (reward + gamma *
+max_Q_next - Q(state, action));
+% Set the next state as the current state
+state = next_state;
+end
+end
+% Create a table from the Q matrix
+q_table = array2table(Q, 'VariableNames', {'Transfer', 'Fill Valley', 'Stay
+Idle'});
+q_table.State = (1:num_states)'; % Add state numbers as a column
+% Move the 'State' column to the first position in the table
+q_table = movevars(q_table, 'State', 'Before', 'Transfer');
+% Display the Q matrix as a table
+disp('Q matrix after training:');
+Q matrix after training:
+disp(q_table);
+State Transfer Fill Valley Stay Idle
+_____ ________ ___________ _________
+1 10.724 15.263 13.737
+2 13.027 12.801 10.573
+3 11.363 14.737 13.263
+4 12.709 13.363 11.157
+5 5.4874 15.737 8.8704
+6 13.737 12.594 12.196
+% Create a table from the rewards matrix
+35
+rewards_table = array2table(rewards, 'VariableNames', {'Transfer', 'Fill
+Valley', 'Stay Idle'});
+rewards_table.State = (1:num_states)'; % Add state numbers as a column
+% Move the 'State' column to the first position in the table
+rewards_table = movevars(rewards_table, 'State', 'Before', 'Transfer');
+% Display the rewards matrix as a table
+disp('Rewards matrix after Q-learning training:');
+Rewards matrix after Q-learning training:
+disp(rewards_table);
+State Transfer Fill Valley Stay Idle
+_____ ________ ___________ _________
+1 0.73789 0.41926 0.64471
+2 0.91495 0.51566 0.1923
+3 0.7573 0.0040475 0.29297
+4 0.79608 0.34786 0.49946
+5 0.46648 0.24077 0.90546
+6 0.1777 0.47646 0.50768
+% Determine optimal actions based on Q-values
+optimal_actions = zeros(num_states, time_steps);
+% For each state and time step, determine the action with the highest Q-value
+for hour = 1:time_steps
+for state = 1:num_states
+[~, optimal_action] = max(Q(state, :));
+optimal_actions(state, hour) = optimal_action;
+end
+end
+% Assuming `optimal_actions` matrix is already defined and processed to find
+optimal actions for each state and time step.
+% Separate actions based on the optimal_actions matrix
+transfer_actions = double(optimal_actions == 1); % Transfer action
+fill_valley_actions = double(optimal_actions == 2); % Fill Valley action
+stay_idle_actions = double(optimal_actions == 3); % Stay Idle action
+% Check the shape of the data matrices
+assert(size(transfer_actions, 1) == num_states, 'Transfer actions matrix:
+number of rows should match num_states');
+assert(size(transfer_actions, 2) == time_steps, 'Transfer actions matrix:
+number of columns should match time_steps');
+assert(size(fill_valley_actions, 1) == num_states, 'Fill Valley actions
+matrix: number of rows should match num_states');
+assert(size(fill_valley_actions, 2) == time_steps, 'Fill Valley actions
+matrix: number of columns should match time_steps');
+assert(size(stay_idle_actions, 1) == num_states, 'Stay Idle actions matrix:
+number of rows should match num_states');
+assert(size(stay_idle_actions, 2) == time_steps, 'Stay Idle actions matrix:
+number of columns should match time_steps');
+% Define time array (1 to 24)
+time_array = 1:time_steps; % Make sure this has length = time_steps
+% Plot heatmap for Transfer actions
+figure;
+36
+heatmap(transfer_actions, 'XData', time_array, 'YData', 1:num_states, ...
+'Colormap', [1, 1, 1; 0, 0, 1]); % White for other, blue for Transfer
+xlabel('Time (hours)');
+ylabel('Mode');
+title('Transfer Actions Over Time and Mode');
+% Plot heatmap for Fill Valley actions
+figure;
+heatmap(fill_valley_actions, 'XData', time_array, 'YData', 1:num_states, ...
+'Colormap', [1, 1, 1; 0, 1, 0]); % White for other, green for Fill
+Valley
+xlabel('Time (hours)');
+ylabel('Mode');
+title('Fill Valley Actions Over Time and Mode');
+% Plot heatmap for Stay Idle actions
+figure;
+heatmap(stay_idle_actions, 'XData', time_array, 'YData', 1:num_states, ...
+'Colormap', [1, 1, 1; 1, 0, 0]); % White for other, red for Stay Idle
+xlabel('Time (hours)');
+ylabel('Mode');
+title('Stay Idle Actions Over Time and Mode');
+disp('Displaying separate heatmaps for each action: Transfer, Fill Valley,
+and Stay Idle.');
+Displaying separate heatmaps for each action: Transfer, Fill Valley, and Stay Idle.
